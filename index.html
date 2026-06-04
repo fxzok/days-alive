@@ -33,23 +33,23 @@
     .screen.hidden { opacity: 0; pointer-events: none; transform: translateY(20px); }
     body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 20% 20%, rgba(200,169,110,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 80% 80%, rgba(126,184,200,0.05) 0%, transparent 60%); pointer-events: none; z-index: 0; }
     
-    /* ONBOARDING */
-    #screen-onboard { padding: 2rem; z-index: 10; }
-    .onboard-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 2.5rem 2rem; width: 100%; max-width: 400px; box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px var(--glow); position: relative; overflow: hidden; }
+    /* ONBOARDING COMPACTÉ POUR ÉVITER LE BUG DE HAUTEUR */
+    #screen-onboard { padding: 1.5rem; z-index: 10; }
+    .onboard-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 1.8rem 1.6rem; width: 100%; max-width: 400px; box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px var(--glow); position: relative; overflow: hidden; }
     .onboard-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
-    .onboard-logo { font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.25em; color: var(--accent); text-transform: uppercase; margin-bottom: 1.8rem; opacity: 0.8; }
-    .onboard-title { font-size: 1.6rem; font-weight: 300; line-height: 1.3; margin-bottom: 0.8rem; color: var(--text); }
-    .onboard-title em { font-style: italic; color: var(--accent); }
-    .onboard-sub { font-size: 0.95rem; color: var(--muted); margin-bottom: 2rem; font-weight: 300; }
-    .lang-toggle { display: flex; gap: 0.5rem; margin-bottom: 1.8rem; }
-    .lang-btn { flex: 1; padding: 0.55rem; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; }
+    .onboard-logo { font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.25em; color: var(--accent); text-transform: uppercase; margin-bottom: 1rem; opacity: 0.8; }
+    .onboard-title { font-size: 1.35rem; font-weight: 300; line-height: 1.35; margin-bottom: 0.6rem; color: var(--text); text-align: center; }
+    .onboard-title em { font-style: italic; color: var(--accent); font-weight: 400; }
+    .onboard-sub { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.2rem; font-weight: 300; text-align: center; }
+    .lang-toggle { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; }
+    .lang-btn { flex: 1; padding: 0.5rem; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; }
     .lang-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 700; }
-    .field { margin-bottom: 1.2rem; }
-    .field label { display: block; font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
-    .field input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 12px; padding: 0.85rem 1rem; color: var(--text); font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 300; outline: none; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none; }
+    .field { margin-bottom: 0.9rem; }
+    .field label { display: block; font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.4rem; }
+    .field input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; color: var(--text); font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 300; outline: none; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none; }
     .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,169,110,0.1); }
     .field input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
-    .btn-primary { width: 100%; padding: 1rem; border-radius: 14px; border: none; background: linear-gradient(135deg, var(--accent), #d4b87a); color: #0a0a0f; font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; margin-top: 0.8rem; transition: transform 0.15s, box-shadow 0.2s; box-shadow: 0 4px 20px rgba(200,169,110,0.3); }
+    .btn-primary { width: 100%; padding: 0.9rem; border-radius: 14px; border: none; background: linear-gradient(135deg, var(--accent), #d4b87a); color: #0a0a0f; font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; margin-top: 0.4rem; transition: transform 0.15s, box-shadow 0.2s; box-shadow: 0 4px 20px rgba(200,169,110,0.3); }
     .btn-primary:active { transform: scale(0.98); }
     .btn-primary:hover { box-shadow: 0 6px 30px rgba(200,169,110,0.45); }
 
@@ -104,7 +104,7 @@
 <div class="screen" id="screen-onboard">
   <div class="onboard-card">
     <div class="onboard-logo">Days Alive ✦</div>
-    <h1 class="onboard-title" id="ob-title">Enseigne-nous à bien<br><em>compter nos jours</em>, afin que<br>nous appliquions notre<br>cœur à la <em>sagesse</em>.</h1>
+    <h1 class="onboard-title" id="ob-title">Enseigne-nous à bien <em>compter nos jours</em>, afin que nous appliquions notre cœur à la <em>sagesse</em>.</h1>
     <p class="onboard-sub" id="ob-sub">Entrez votre prénom et votre date de naissance.</p>
     <div class="lang-toggle">
       <button class="lang-btn active" onclick="setLang('fr',true)" id="btn-fr">🇫🇷 Français</button>
@@ -489,7 +489,7 @@ const VERSES = [
 // ─── I18N ─────────────────────────────────────────
 const T = {
   fr: {
-    ob_title: 'Enseigne-nous à bien<br><em>compter nos jours</em>, afin que<br>nous appliquions notre<br>cœur à la <em>sagesse</em>.<br><span style="font-size:0.85rem;opacity:0.5;font-family:\'Space Mono\',monospace;letter-spacing:0.1em;display:block;margin-top:0.5rem;">PSAUME 90:12</span>',
+    ob_title: 'Enseigne-nous à bien <em>compter nos jours</em>, afin que nous appliquions notre cœur à la <em>sagesse</em>.<br><span style="font-size:0.8rem;opacity:0.5;font-family:\'Space Mono\',monospace;letter-spacing:0.1em;display:block;margin-top:0.4rem;">PSAUME 90:12</span>',
     ob_sub: 'Entrez votre prénom et votre date de naissance.',
     ob_label_name: 'Prénom',
     ob_label_dob: 'Date de naissance',
@@ -501,7 +501,7 @@ const T = {
     live: 'EN DIRECT', edit: 'Modifier', lang_switch: 'EN',
   },
   en: {
-    ob_title: 'So teach us to<br><em>number our days</em>,<br>that we may apply<br>our hearts unto <em>wisdom</em>.<br><span style="font-size:0.85rem;opacity:0.5;font-family:\'Space Mono\',monospace;letter-spacing:0.1em;display:block;margin-top:0.5rem;">PSALM 90:12</span>',
+    ob_title: 'So teach us to <em>number our days</em>, that we may apply our hearts unto <em>wisdom</em>.<br><span style="font-size:0.8rem;opacity:0.5;font-family:\'Space Mono\',monospace;letter-spacing:0.1em;display:block;margin-top:0.4rem;">PSALM 90:12</span>',
     ob_sub: 'Enter your first name and date of birth.',
     ob_label_name: 'First name',
     ob_label_dob: 'Date of birth',
