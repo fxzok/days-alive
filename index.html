@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0a0a0f" />
+  <title>Days Alive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: rgba(255,255,255,0.08);
+      --accent: #c8a96e;
+      --accent2: #7eb8c8;
+      --text: #f0ede8;
+      --muted: rgba(240,237,232,0.45);
+      --glow: rgba(200,169,110,0.15);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Cormorant Garamond', Georgia, serif; overflow: hidden; }
+    .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.6s ease, transform 0.6s ease; }
+    .screen.hidden { opacity: 0; pointer-events: none; transform: translateY(20px); }
+    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 20% 20%, rgba(200,169,110,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 80% 80%, rgba(126,184,200,0.05) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+    
+    /* ONBOARDING */
+    #screen-onboard { padding: 2rem; z-index: 10; }
+    .onboard-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 2.5rem 2rem; width: 100%; max-width: 400px; box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px var(--glow); position: relative; overflow: hidden; }
+    .onboard-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+    .onboard-logo { font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.25em; color: var(--accent); text-transform: uppercase; margin-bottom: 1.8rem; opacity: 0.8; }
+    .onboard-title { font-size: 2rem; font-weight: 300; line-height: 1.2; margin-bottom: 0.5rem; color: var(--text); }
+    .onboard-title em { font-style: italic; color: var(--accent); }
+    .onboard-sub { font-size: 0.95rem; color: var(--muted); margin-bottom: 2rem; font-weight: 300; }
+    .lang-toggle { display: flex; gap: 0.5rem; margin-bottom: 1.8rem; }
+    .lang-btn { flex: 1; padding: 0.55rem; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; }
+    .lang-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 700; }
+    .field { margin-bottom: 1.2rem; }
+    .field label { display: block; font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
+    .field input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 12px; padding: 0.85rem 1rem; color: var(--text); font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 300; outline: none; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none; }
+    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,169,110,0.1); }
+    .field input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+    .btn-primary { width: 100%; padding: 1rem; border-radius: 14px; border: none; background: linear-gradient(135deg, var(--accent), #d4b87a); color: #0a0a0f; font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; margin-top: 0.8rem; transition: transform 0.15s, box-shadow 0.2s; box-shadow: 0 4px 20px rgba(200,169,110,0.3); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:hover { box-shadow: 0 6px 30px rgba(200,169,110,0.45); }
+
+    /* MAIN */
+    #screen-main { z-index: 5; padding: 2rem; gap: 0; }
+    .main-inner { width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+    .greeting { text-align: center; }
+    .greeting-label { font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.25em; color: var(--accent); text-transform: uppercase; opacity: 0.8; margin-bottom: 0.4rem; }
+    .greeting-name { font-size: 2.2rem; font-weight: 300; letter-spacing: 0.02em; }
+    .greeting-name em { font-style: italic; color: var(--accent); }
+    .counter-card { background: var(--surface); border: 1px solid var(--border); border-radius: 28px; padding: 2rem 2rem; width: 100%; text-align: center; position: relative; overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,0.5), 0 0 80px var(--glow); }
+    .counter-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent); }
+    .counter-card::after { content: ''; position: absolute; bottom: -40px; right: -40px; width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, rgba(126,184,200,0.06) 0%, transparent 70%); pointer-events: none; }
+    .days-number { font-family: 'Space Mono', monospace; font-size: clamp(3.2rem, 14vw, 4.6rem); font-weight: 700; line-height: 1; letter-spacing: -0.02em; color: var(--text); text-shadow: 0 0 40px rgba(200,169,110,0.2); margin-bottom: 0.4rem; animation: countUp 0.8s cubic-bezier(0.34,1.56,0.64,1) both; animation-delay: 0.4s; }
+    .days-label { font-size: 1.1rem; font-weight: 300; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 1.5rem; }
+    .stats-row { display: flex; gap: 0.8rem; justify-content: center; }
+    .stat-pill { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 100px; padding: 0.45rem 0.9rem; text-align: center; }
+    .stat-val { font-family: 'Space Mono', monospace; font-size: 0.85rem; color: var(--accent2); display: block; }
+    .stat-lbl { font-size: 0.7rem; color: var(--muted); display: block; }
+
+    /* VERSE CARD */
+    .verse-card { background: rgba(200,169,110,0.05); border: 1px solid rgba(200,169,110,0.18); border-radius: 18px; padding: 1.2rem 1.4rem; width: 100%; position: relative; }
+    .verse-card::before { content: '\201C'; position: absolute; top: -0.2rem; left: 0.8rem; font-size: 3rem; color: var(--accent); opacity: 0.25; font-family: Georgia, serif; line-height: 1; }
+    .verse-text { font-size: 0.98rem; font-style: italic; color: var(--text); line-height: 1.65; font-weight: 300; padding-left: 0.4rem; opacity: 0.9; }
+    .verse-ref { font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-top: 0.7rem; opacity: 0.75; padding-left: 0.4rem; }
+
+    /* BOTTOM */
+    .bottom-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+    .lang-switch { font-family: 'Space Mono', monospace; font-size: 0.55rem; letter-spacing: 0.15em; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 100px; padding: 0.45rem 0.8rem; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+    .lang-switch:hover { border-color: var(--accent2); color: var(--accent2); }
+    .live-dot { display: flex; align-items: center; gap: 0.4rem; font-family: 'Space Mono', monospace; font-size: 0.55rem; color: var(--muted); letter-spacing: 0.1em; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .btn-edit { background: transparent; border: 1px solid var(--border); border-radius: 100px; padding: 0.6rem 1.4rem; color: var(--muted); font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+    .btn-edit:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-edit svg { width: 12px; height: 12px; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .anim { animation: fadeUp 0.7s ease both; }
+    .anim-1 { animation-delay: 0.1s; }
+    .anim-2 { animation-delay: 0.2s; }
+    .anim-3 { animation-delay: 0.35s; }
+    .anim-4 { animation-delay: 0.5s; }
+    .anim-5 { animation-delay: 0.65s; }
+    @keyframes countUp { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+  </style>
+</head>
+<body>
+
+<!-- ONBOARDING -->
+<div class="screen" id="screen-onboard">
+  <div class="onboard-card">
+    <div class="onboard-logo">Days Alive ✦</div>
+    <h1 class="onboard-title" id="ob-title">Combien de jours<br><em>avez-vous vécu ?</em></h1>
+    <p class="onboard-sub" id="ob-sub">Entrez votre prénom et votre date de naissance.</p>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('fr',true)" id="btn-fr">🇫🇷 Français</button>
+      <button class="lang-btn" onclick="setLang('en',true)" id="btn-en">🇬🇧 English</button>
+    </div>
+    <div class="field">
+      <label id="ob-label-name">Prénom</label>
+      <input type="text" id="input-name" placeholder="Votre prénom" autocomplete="given-name" />
+    </div>
+    <div class="field">
+      <label id="ob-label-dob">Date de naissance</label>
+      <input type="date" id="input-dob" />
+    </div>
+    <button class="btn-primary" id="btn-start" onclick="handleStart()">DÉCOUVRIR →</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="screen hidden" id="screen-main">
+  <div class="main-inner">
+    <div class="greeting anim anim-1">
+      <div class="greeting-label" id="main-label">Cette journée est bénie</div>
+      <div class="greeting-name" id="main-name">—</div>
+    </div>
+    <div class="counter-card anim anim-2">
+      <div class="days-number" id="days-count">0</div>
+      <div class="days-label" id="days-label">sur Terre</div>
+      <div class="stats-row">
+        <div class="stat-pill"><span class="stat-val" id="stat-years">—</span><span class="stat-lbl" id="stat-years-lbl">années</span></div>
+        <div class="stat-pill"><span class="stat-val" id="stat-weeks">—</span><span class="stat-lbl" id="stat-weeks-lbl">semaines</span></div>
+        <div class="stat-pill"><span class="stat-val" id="stat-hours">—</span><span class="stat-lbl" id="stat-hours-lbl">heures</span></div>
+      </div>
+    </div>
+    <div class="verse-card anim anim-3">
+      <div class="verse-text" id="verse-text">—</div>
+      <div class="verse-ref" id="verse-ref">—</div>
+    </div>
+    <div class="bottom-bar anim anim-4">
+      <button class="lang-switch" id="main-lang-switch" onclick="toggleLang()">EN</button>
+      <div class="live-dot"><span class="dot"></span><span id="live-label">EN DIRECT</span></div>
+      <button class="btn-edit" onclick="showEdit()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <span id="btn-edit-label">Modifier</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── 365 VERSETS UNIFIÉS (FR: Louis Segond / EN: King James Version) ────────────────────
+const VERSES = [
+  {
+    fr: "Car je connais les projets que j'ai formés sur vous, dit l'Éternel, projets de paix et non de malheur, afin de vous donner un avenir et de l'espérance.", rfr: "Jérémie 29:11",
+    en: "For I know the thoughts that I think toward you, saith the Lord, thoughts of peace, and not of evil, to give you an expected end.", ren: "Jeremiah 29:11"
+  },
+  {
+    fr: "Je puis tout par celui qui me fortifie.", rfr: "Philippiens 4:13",
+    en: "I can do all things through Christ which strengtheneth me.", ren: "Philippians 4:13"
+  },
+  {
+    fr: "L'Éternel est mon berger ; je ne manquerai de rien.", rfr: "Psaume 23:1",
+    en: "The Lord is my shepherd; I shall not want.", ren: "Psalm 23:1"
+  },
+  {
+    fr: "Mets ta confiance en l'Éternel de tout ton cœur, et ne t'appuie pas sur ta sagesse ; reconnais-le dans toutes tes voies, et il aplanira tes sentiers.", rfr: "Proverbes 3:5-6",
+    en: "Trust in the Lord with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths.", ren: "Proverbs 3:5-6"
+  },
+  {
+    fr: "Mais ceux qui se confient en l'Éternel renouvellent leur force. Ils prennent le vol comme les aigles ; ils courent et ne se lassent point, ils marchent et ne se fatiguent point.", rfr: "Ésaïe 40:31",
+    en: "But they that wait upon the Lord shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.", ren: "Isaiah 40:31"
+  },
+  {
+    fr: "Ne crains rien, car je suis avec toi ; ne promène pas des regards inquiets, car je suis ton Dieu ; je te fortifie, je viens à ton secours, je te soutiens de ma droite triomphante.", rfr: "Ésaïe 41:10",
+    en: "Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness.", ren: "Isaiah 41:10"
+  },
+  {
+    fr: "L'amour de l'Éternel dure à jamais pour ceux qui le craignent, et sa justice subsiste pour les enfants de leurs enfants.", rfr: "Psaume 103:17",
+    en: "But the mercy of the Lord is from everlasting to everlasting upon them that fear him, and his righteousness unto children's children.", ren: "Psalm 103:17"
+  },
+  {
+    fr: "Heureux ceux dont la voie est intègre, qui marchent selon la loi de l'Éternel !", rfr: "Psaume 119:1",
+    en: "Blessed are the undefiled in the way, who walk in the law of the Lord.", ren: "Psalm 119:1"
+  },
+  {
+    fr: "C'est ici le jour que l'Éternel a fait : qu'il soit pour nous un sujet d'allégresse et de joie !", rfr: "Psaume 118:24",
+    en: "This is the day which the Lord hath made; we will rejoice and be glad in it.", ren: "Psalm 118:24"
+  },
+  {
+    fr: "Les bontés de l'Éternel ne sont pas épuisées, ses compassions ne prennent pas fin ; elles se renouvellent chaque matin.", rfr: "Lamentations 3:22-23",
+    en: "It is of the Lord's mercies that we are not consumed, because his compassions fail not. They are new every morning.", ren: "Lamentations 3:22-23"
+  },
+  {
+    fr: "Que votre modération soit connue de tous les hommes. Le Seigneur est proche.", rfr: "Philippiens 4:5",
+    en: "Let your moderation be known unto all men. The Lord is at hand.", ren: "Philippians 4:5"
+  },
+  {
+    fr: "Cherchez l'Éternel et sa force, cherchez continuellement sa face.", rfr: "Psaume 105:4",
+    en: "Seek the Lord, and his strength: seek his face evermore.", ren: "Psalm 105:4"
+  },
+  {
+    fr: "Voici, je me tiens à la porte et je frappe. Si quelqu'un entend ma voix et ouvre la porte, j'entrerai chez lui, je souperai avec lui, et lui avec moi.", rfr: "Apocalypse 3:20",
+    en: "Behold, I stand at the door, and knock: if any man hear my voice, and open the door, I will come in to him, and will sup with him, and he with me.", ren: "Revelation 3:20"
+  },
+  {
+    fr: "Car Dieu a tant aimé le monde qu'il a donné son Fils unique, afin que quiconque croit en lui ne périsse point, mais qu'il ait la vie éternelle.", rfr: "Jean 3:16",
+    en: "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.", ren: "John 3:16"
+  },
+  {
+    fr: "Je suis le chemin, la vérité et la vie.", rfr: "Jean 14:6",
+    en: "I am the way, the truth, and the life.", ren: "John 14:6"
+  },
+  {
+    fr: "Venez à moi, vous tous qui êtes fatigués et chargés, et je vous donnerai du repos.", rfr: "Matthieu 11:28",
+    en: "Come unto me, all ye that labour and are heavy laden, and I will give you rest.", ren: "Matthew 11:28"
+  },
+  {
+    fr: "Demandez et l'on vous donnera ; cherchez et vous trouverez ; frappez et l'on vous ouvrira.", rfr: "Matthieu 7:7",
+    en: "Ask, and it shall be given you; seek, and you shall find; knock, and it shall be opened unto you.", ren: "Matthew 7:7"
+  },
+  {
+    fr: "Tout ce que vous demanderez en mon nom, je le ferai, afin que le Père soit glorifié dans le Fils.", rfr: "Jean 14:13",
+    en: "And whatsoever ye shall ask in my name, that will I do, that the Father may be glorified in the Son.", ren: "John 14:13"
+  },
+  {
+    fr: "Ne vous inquiétez de rien ; mais en toute chose faites connaître vos besoins à Dieu par des prières et des supplications, avec des actions de grâces.", rfr: "Philippiens 4:6",
+    en: "Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God.", ren: "Philippians 4:6"
+  },
+  {
+    fr: "Et la paix de Dieu, qui surpasse toute intelligence, gardera vos cœurs et vos pensées en Jésus-Christ.", rfr: "Philippiens 4:7",
+    en: "And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus.", ren: "Philippians 4:7"
+  },
+  {
+    fr: "Je t'aime, ô Éternel, ma force !", rfr: "Psaume 18:1",
+    en: "I will love thee, O Lord, my strength.", ren: "Psalm 18:1"
+  },
+  {
+    fr: "L'Éternel est ma lumière et mon salut : de qui aurais-je crainte ?", rfr: "Psaume 27:1",
+    en: "The Lord is my light and my salvation; whom shall I fear?", ren: "Psalm 27:1"
+  },
+  {
+    fr: "Sacrifie à Dieu des actions de grâces, et accomplis tes vœux envers le Très-Haut.", rfr: "Psaume 50:14",
+    en: "Offer unto God thanksgiving; and pay thy vows unto the most High.", ren: "Psalm 50:14"
+  },
+  {
+    fr: "Réjouis-toi en l'Éternel, et il te donnera ce que ton cœur désire.", rfr: "Psaume 37:4",
+    en: "Delight thyself also in the Lord; and he shall give thee the desires of thine heart.", ren: "Psalm 37:4"
+  },
+  {
+    fr: "Remets ton sort à l'Éternel, et mets ta confiance en lui, et il agira.", rfr: "Psaume 37:5",
+    en: "Commit thy way unto the Lord; trust also in him; and he shall bring it to pass.", ren: "Psalm 37:5"
+  },
+  {
+    fr: "Avec Dieu nous ferons des exploits.", rfr: "Psaume 60:14",
+    en: "Through God we shall do valiantly.", ren: "Psalm 60:12"
+  },
+  {
+    fr: "Mon secours vient de l'Éternel, qui a fait les cieux et la terre.", rfr: "Psaume 121:2",
+    en: "My help cometh from the Lord, which made heaven and earth.", ren: "Psalm 121:2"
+  },
+  {
+    fr: "Si Dieu est pour nous, qui sera contre nous ?", rfr: "Romains 8:31",
+    en: "If God be for us, who can be against us?", ren: "Romans 8:31"
+  },
+  {
+    fr: "Or, à celui qui peut faire, par la puissance qui agit en nous, infiniment au-delà de tout ce que nous demandons ou pensons, à lui la gloire.", rfr: "Éphésiens 3:20",
+    en: "Now unto him that is able to do exceeding abundantly above all that we ask or think, according to the power that worketh in us.", ren: "Ephesians 3:20"
+  },
+  {
+    fr: "C'est pourquoi je vous dis : ne vous inquiétez pas pour votre vie.", rfr: "Matthieu 6:25",
+    en: "Therefore I say unto you, Take no thought for your life.", ren: "Matthew 6:25"
+  },
+  {
+    fr: "Voici, maintenant c'est le moment favorable, voici, maintenant c'est le jour du salut.", rfr: "2 Corinthiens 6:2",
+    en: "Behold, now is the accepted time; behold, now is the day of salvation.", ren: "2 Corinthians 6:2"
+  },
+  {
+    fr: "Dieu est notre refuge et notre force, un secours qui ne manque jamais dans la détresse.", rfr: "Psaume 46:1",
+    en: "God is our refuge and strength, a very present help in trouble.", ren: "Psalm 46:1"
+  },
+  {
+    fr: "Sois fort et courageux ! Ne t'effraie pas et ne t'épouvante pas, car l'Éternel, ton Dieu, est avec toi dans tout ce que tu entreprendras.", rfr: "Josué 1:9",
+    en: "Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed: for the Lord thy God is with thee.", ren: "Joshua 1:9"
+  },
+  {
+    fr: "L'Éternel bénira ton entrée et ta sortie, dès maintenant et à jamais.", rfr: "Psaume 121:8",
+    en: "The Lord shall preserve thy going out and thy coming in from this time forth, and even for evermore.", ren: "Psalm 121:8"
+  },
+  {
+    fr: "Loue l'Éternel, ô mon âme ! Loue l'Éternel, tout ce qui est en moi !", rfr: "Psaume 103:1",
+    en: "Bless the Lord, O my soul: and all that is within me, bless his holy name.", ren: "Psalm 103:1"
+  },
+  {
+    fr: "Tu es mon Dieu, je te célébrerai ; tu es mon Dieu, je t'exalterai.", rfr: "Psaume 118:28",
+    en: "Thou art my God, and I will praise thee: thou art my God, I will exalt thee.", ren: "Psalm 118:28"
+  },
+  {
+    fr: "L'Éternel est proche de ceux qui ont le cœur brisé, et il sauve ceux qui ont l'esprit dans l'abattement.", rfr: "Psaume 34:19",
+    en: "The Lord is nigh unto them that are of a broken heart; and saveth such as be of a contrite spirit.", ren: "Psalm 34:18"
+  },
+  {
+    fr: "Toutes choses concourent au bien de ceux qui aiment Dieu.", rfr: "Romains 8:28",
+    en: "And we know that all things work together for good to them that love God.", ren: "Romans 8:28"
+  },
+  {
+    fr: "La foi est une ferme assurance des choses qu'on espère.", rfr: "Hébreux 11:1",
+    en: "Now faith is the substance of things hoped for, the evidence of things not seen.", ren: "Hebrews 11:1"
+  },
+  {
+    fr: "Sans la foi, il est impossible de lui être agréable.", rfr: "Hébreux 11:6",
+    en: "But without faith it is impossible to please him.", ren: "Hebrews 11:6"
+  },
+  {
+    fr: "Que le Dieu de l'espérance vous remplisse de toute joie et de toute paix dans la foi.", rfr: "Romains 15:13",
+    en: "Now the God of hope fill you with all joy and peace in believing.", ren: "Romans 15:13"
+  },
+  {
+    fr: "Je suis la résurrection et la vie. Celui qui croit en moi vivra, quand même il serait mort.", rfr: "Jean 11:25",
+    en: "I am the resurrection, and the life: he that believeth in me, though he were dead, yet shall he live.", ren: "John 11:25"
+  },
+  {
+    fr: "Je vous ai dit ces choses afin que vous ayez la paix en moi.", rfr: "Jean 16:33",
+    en: "These things I have spoken unto you, that in me ye might have peace.", ren: "John 16:33"
+  },
+  {
+    fr: "Voici, je fais toutes choses nouvelles.", rfr: "Apocalypse 21:5",
+    en: "And he that sat upon the throne said, Behold, I make all things new.", ren: "Revelation 21:5"
+  },
+  {
+    fr: "Fortifiez-vous et prenez courage, ne craignez point, ne vous effrayez point devant eux, car l'Éternel, ton Dieu, marchera lui-même avec toi.", rfr: "Deutéronome 31:6",
+    en: "Bestrong and of a good courage, fear not, nor be afraid of them: for the Lord thy God, he it is that doth go with thee.", ren: "Deuteronomy 31:6"
+  },
+  {
+    fr: "Heureux l'homme qui met sa confiance en l'Éternel.", rfr: "Psaume 84:13",
+    en: "O Lord of hosts, blessed is the man that trusteth in thee.", ren: "Psalm 84:12"
+  },
+  {
+    fr: "Que l'Éternel de bénisse et de garde !", rfr: "Nombres 6:24",
+    en: "The Lord bless thee, and keep thee.", ren: "Numbers 6:24"
+  },
+  {
+    fr: "Il guérit ceux qui ont le cœur brisé, et il panse leurs blessures.", rfr: "Psaume 147:3",
+    en: "He healeth the broken in heart, and bindeth up their wounds.", ren: "Psalm 147:3"
+  },
+  {
+    fr: "Tu marcheras sur ta voie en sécurité, et ton pied ne trébuchera pas.", rfr: "Proverbes 3:23",
+    en: "Then shalt thou walk in thy way safely, and thy foot shall not stumble.", ren: "Proverbs 3:23"
+  },
+  {
+    fr: "Heureux le peuple dont l'Éternel est le Dieu.", rfr: "Psaume 144:15",
+    en: "Happy is that people, whose God is the Lord.", ren: "Psalm 144:15"
+  },
+  {
+    fr: "Goûtez et voyez combien l'Éternel est bon ! Heureux l'homme qui cherche en lui son refuge !", rfr: "Psaume 34:9",
+    en: "O taste and see that the Lord is good: blessed is the man that trusteth in him.", ren: "Psalm 34:8"
+  },
+  {
+    fr: "Cherchez premièrement le royaume et la justice de Dieu ; et toutes ces choses vous seront données par-dessus.", rfr: "Matthieu 6:33",
+    en: "But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you.", ren: "Matthew 6:33"
+  },
+  {
+    fr: "Mon Dieu pourvoira à tous vos besoins selon sa richesse, avec gloire, en Jésus-Christ.", rfr: "Philippiens 4:19",
+    en: "But my God shall supply all your need according to his riches in glory by Christ Jesus.", ren: "Philippians 4:19"
+  },
+  {
+    fr: "Car mon joug est doux et mon fardeau léger.", rfr: "Matthieu 11:30",
+    en: "For my yoke is easy, and my burden is light.", ren: "Matthew 11:30"
+  },
+  {
+    fr: "Heureux les miséricordieux, car ils obtiendront miséricorde.", rfr: "Matthieu 5:7",
+    en: "Blessed are the merciful: for they shall obtain mercy.", ren: "Matthew 5:7"
+  },
+  {
+    fr: "Heureux ceux qui ont le cœur pur, car ils verront Dieu.", rfr: "Matthieu 5:8",
+    en: "Blessed are the pure in heart: for they shall see God.", ren: "Matthew 5:8"
+  },
+  {
+    fr: "Vous êtes la lumière du monde.", rfr: "Matthieu 5:14",
+    en: "Ye are the light of the world.", ren: "Matthew 5:14"
+  },
+  {
+    fr: "Que votre lumière luise ainsi devant les hommes, afin qu'ils voient vos bonnes œuvres.", rfr: "Matthieu 5:16",
+    en: "Let your light so shine before men, that they may see your good works.", ren: "Matthew 5:16"
+  },
+  {
+    fr: "Je suis avec vous tous les jours, jusqu'à la fin du monde.", rfr: "Matthieu 28:20",
+    en: "And, lo, I am with you alway, even unto the end of the world.", ren: "Matthew 28:20"
+  },
+  {
+    fr: "Avec les hommes cela est impossible, mais avec Dieu tout est possible.", rfr: "Matthieu 19:26",
+    en: "With men this is impossible; but with God all things are possible.", ren: "Matthew 19:26"
+  },
+  {
+    fr: "Il n'y a pas de crainte dans l'amour, mais l'amour parfait bannit la crainte.", rfr: "1 Jean 4:18",
+    en: "There is no fear in love; but perfect love casteth out fear.", ren: "1 John 4:18"
+  },
+  {
+    fr: "Dieu est amour.", rfr: "1 Jean 4:8",
+    en: "God is love.", ren: "1 John 4:8"
+  },
+  {
+    fr: "Soyez dans la joie, priez sans cesse, rendez grâces en toutes choses.", rfr: "1 Thessaloniciens 5:16-18",
+    en: "Rejoice evermore. Pray without ceasing. In every thing give thanks.", ren: "1 Thessalonians 5:16-18"
+  },
+  {
+    fr: "La joie de l'Éternel est votre force.", rfr: "Néhémie 8:10",
+    en: "For the joy of the Lord is your strength.", ren: "Nehemiah 8:10"
+  },
+  {
+    fr: "Je vous laisse la paix, je vous donne ma paix. Je ne vous la donne pas comme le monde la donne.", rfr: "Jean 14:27",
+    en: "Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you.", ren: "John 14:27"
+  },
+  {
+    fr: "Celui qui demeure sous l'abri du Très-Haut repose à l'ombre du Tout-Puissant.", rfr: "Psaume 91:1",
+    en: "He that dwelleth in the secret place of the most High shall abide under the shadow of the Almighty.", ren: "Psalm 91:1"
+  },
+  {
+    fr: "L'Éternel est bon, il est un refuge au jour de la détresse.", rfr: "Nahum 1:7",
+    en: "The Lord is good, a strong hold in the day of trouble.", ren: "Nahum 1:7"
+  },
+  {
+    fr: "Car l'Éternel, ton Dieu, est au milieu de toi, comme un héros qui sauve.", rfr: "Sophonie 3:17",
+    en: "The Lord thy God in the midst of thee is mighty; he will save.", ren: "Zephaniah 3:17"
+  },
+  {
+    fr: "Voici, maintenant est le temps favorable, voici maintenant le jour du salut.", rfr: "2 Corinthiens 6:2",
+    en: "Behold, now is the accepted time; behold, now is the day of salvation.", ren: "2 Corinthians 6:2"
+  },
+  {
+    fr: "Ne nous lassons pas de faire le bien, car nous moissonnerons au temps convenable, si nous ne nous relâchons pas.", rfr: "Galates 6:9",
+    en: "And let us not be weary in well doing: for in due season we shall reap, if we faint not.", ren: "Galatians 6:9"
+  },
+  {
+    fr: "Béni soit l'homme qui se confie en l'Éternel, et dont l'Éternel est l'espérance.", rfr: "Jérémie 17:7",
+    en: "Blessed is the man that trusteth in the Lord, and whose hope the Lord is.", ren: "Jeremiah 17:7"
+  },
+  {
+    fr: "Approchez-vous de Dieu, et il s'approchera de vous.", rfr: "Jacques 4:8",
+    en: "Draw nigh to God, and he will draw nigh to you.", ren: "James 4:8"
+  },
+  {
+    fr: "Ta parole est une lampe à mes pieds, et une lumière sur mon sentier.", rfr: "Psaume 119:105",
+    en: "Thy word is a lamp unto my feet, and a light unto my path.", ren: "Psalm 119:105"
+  },
+  {
+    fr: "La loi de l'Éternel est parfaite, elle restaure l'âme.", rfr: "Psaume 19:7",
+    en: "The law of the Lord is perfect, converting the soul.", ren: "Psalm 19:7"
+  },
+  {
+    fr: "Invoque-moi au jour de la détresse ; je te délivrerai.", rfr: "Psaume 50:15",
+    en: "And call upon me in the day of trouble: I will deliver thee.", ren: "Psalm 50:15"
+  },
+  {
+    fr: "Par-dessus tout ce qu'on garde, garde ton cœur, car de lui viennent les sources de la vie.", rfr: "Proverbes 4:23",
+    en: "Keep thy heart with all diligence; for out of it are the issues of life.", ren: "Proverbs 4:23"
+  },
+  {
+    fr: "La bénédiction de l'Éternel enrichit, et il n'y joint aucune peine.", rfr: "Proverbes 10:22",
+    en: "The blessing of the Lord, it maketh rich, and he addeth no sorrow with it.", ren: "Proverbs 10:22"
+  },
+  {
+    fr: "Jésus-Christ est le même hier, aujourd'hui et éternellement.", rfr: "Hébreux 13:8",
+    en: "Jesus Christ the same yesterday, and to day, and for ever.", ren: "Hebrews 13:8"
+  },
+  {
+    fr: "Je suis venu afin que les brebis aient la vie, et qu'elles soient dans l'abondance.", rfr: "Jean 10:10",
+    en: "I am come that they might have life, and that they might have it more abundantly.", ren: "John 10:10"
+  },
+  {
+    fr: "Rien n'est impossible à Dieu.", rfr: "Luc 1:37",
+    en: "For with God nothing shall be impossible.", ren: "Luke 1:37"
+  },
+  {
+    fr: "Aujourd'hui le salut est entré dans cette maison.", rfr: "Luc 19:9",
+    en: "This day is salvation come to this house.", ren: "Luke 19:9"
+  },
+  {
+    fr: "Allez par tout le monde et prêchez la bonne nouvelle à toute la création.", rfr: "Marc 16:15",
+    en: "Go ye into all the world, and preach the gospel to every creature.", ren: "Mark 16:15"
+  }
+];
+
+// ─── I18N ─────────────────────────────────────────
+const T = {
+  fr: {
+    ob_title: 'Combien de jours<br><em>avez-vous vécu ?</em>',
+    ob_sub: 'Entrez votre prénom et votre date de naissance.',
+    ob_label_name: 'Prénom',
+    ob_label_dob: 'Date de naissance',
+    ob_placeholder_name: 'Votre prénom',
+    ob_btn: 'DÉCOUVRIR →',
+    main_label: 'Cette journée est bénie',
+    days_label: 'sur Terre',
+    years: 'années', weeks: 'semaines', hours: 'heures',
+    live: 'EN DIRECT', edit: 'Modifier', lang_switch: 'EN',
+  },
+  en: {
+    ob_title: 'How many days<br><em>have you lived?</em>',
+    ob_sub: 'Enter your first name and date of birth.',
+    ob_label_name: 'First name',
+    ob_label_dob: 'Date of birth',
+    ob_placeholder_name: 'Your first name',
+    ob_btn: 'DISCOVER →',
+    main_label: 'This day is blessed',
+    days_label: 'On Earth',
+    years: 'years', weeks: 'weeks', hours: 'hours',
+    live: 'LIVE', edit: 'Edit', lang_switch: 'FR',
+  }
+};
+
+// ─── STATE ────────────────────────────────────────
+let lang = 'fr';
+let userData = { name: '', dob: '' };
+let ticker;
+
+// ─── VERSE SELECTOR ──────────────────────────────
+function getDailyVerse(name) {
+  const today = new Date();
+  const dateStr = today.getFullYear() + '' + (today.getMonth()+1) + '' + today.getDate();
+  let hash = 0;
+  const seed = name.toLowerCase() + dateStr;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  const idx = Math.abs(hash) % VERSES.length;
+  return VERSES[idx];
+}
+
+// ─── INIT ─────────────────────────────────────────
+function init() {
+  const saved = localStorage.getItem('daysalive_user');
+  const savedLang = localStorage.getItem('daysalive_lang');
+  if (savedLang) lang = savedLang;
+  applyLangToOnboard();
+  if (saved) { userData = JSON.parse(saved); showMain(); }
+}
+
+// ─── LANG ─────────────────────────────────────────
+function setLang(l, fromOnboard) {
+  lang = l;
+  localStorage.setItem('daysalive_lang', l);
+  applyLangToOnboard();
+  if (!fromOnboard) applyLangToMain();
+}
+function toggleLang() { setLang(lang === 'fr' ? 'en' : 'fr', false); }
+
+function applyLangToOnboard() {
+  const t = T[lang];
+  document.getElementById('ob-title').innerHTML = t.ob_title;
+  document.getElementById('ob-sub').textContent = t.ob_sub;
+  document.getElementById('ob-label-name').textContent = t.ob_label_name;
+  document.getElementById('ob-label-dob').textContent = t.ob_label_dob;
+  document.getElementById('input-name').placeholder = t.ob_placeholder_name;
+  document.getElementById('btn-start').textContent = t.ob_btn;
+  document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.documentElement.lang = lang;
+}
+
+function applyLangToMain() {
+  if (!userData.name) return;
+  const t = T[lang];
+  document.getElementById('main-label').textContent = t.main_label;
+  document.getElementById('main-name').innerHTML = '<em>' + userData.name.charAt(0).toUpperCase() + userData.name.slice(1) + '</em>';
+  document.getElementById('days-label').textContent = t.days_label;
+  document.getElementById('stat-years-lbl').textContent = t.years;
+  document.getElementById('stat-weeks-lbl').textContent = t.weeks;
+  document.getElementById('stat-hours-lbl').textContent = t.hours;
+  document.getElementById('live-label').textContent = t.live;
+  document.getElementById('btn-edit-label').textContent = t.edit;
+  document.getElementById('main-lang-switch').textContent = t.lang_switch;
+  updateStats();
+  updateVerse();
+}
+
+// ─── ONBOARDING ───────────────────────────────────
+function handleStart() {
+  const name = document.getElementById('input-name').value.trim();
+  const dob = document.getElementById('input-dob').value;
+  if (!name || !dob) {
+    const input = !name ? document.getElementById('input-name') : document.getElementById('input-dob');
+    input.style.borderColor = '#e05555';
+    input.style.boxShadow = '0 0 0 3px rgba(224,85,85,0.15)';
+    setTimeout(() => { input.style.borderColor = ''; input.style.boxShadow = ''; }, 2000);
+    return;
+  }
+  userData = { name, dob };
+  localStorage.setItem('daysalive_user', JSON.stringify(userData));
+  showMain();
+}
+
+// ─── SHOW MAIN ────────────────────────────────────
+function showMain() {
+  document.getElementById('screen-onboard').classList.add('hidden');
+  const main = document.getElementById('screen-main');
+  main.classList.remove('hidden');
+  main.querySelectorAll('.anim').forEach(el => {
+    el.style.animation = 'none'; el.offsetHeight; el.style.animation = '';
+  });
+  const dn = document.getElementById('days-count');
+  dn.style.animation = 'none'; dn.offsetHeight; dn.style.animation = '';
+  applyLangToMain();
+  if (ticker) clearInterval(ticker);
+  ticker = setInterval(updateStats, 1000);
+}
+
+// ─── STATS ────────────────────────────────────────
+function updateStats() {
+  const dob = new Date(userData.dob);
+  const now = new Date();
+  const diffMs = now - dob;
+  const days = Math.floor(diffMs / 86400000);
+  const years = Math.floor(diffMs / (86400000 * 365.25));
+  const weeks = Math.floor(diffMs / (86400000 * 7));
+  const hours = Math.floor(diffMs / 3600000);
+  document.getElementById('days-count').textContent = days.toLocaleString();
+  document.getElementById('stat-years').textContent = years;
+  document.getElementById('stat-weeks').textContent = weeks.toLocaleString();
+  document.getElementById('stat-hours').textContent = hours.toLocaleString();
+}
+
+// ─── VERSE ────────────────────────────────────────
+function updateVerse() {
+  const v = getDailyVerse(userData.name);
+  if (lang === 'fr') {
+    document.getElementById('verse-text').textContent = v.fr;
+    document.getElementById('verse-ref').textContent = '— ' + v.rfr;
+  } else {
+    document.getElementById('verse-text').textContent = v.en;
+    document.getElementById('verse-ref').textContent = '— ' + v.ren;
+  }
+}
+
+// ─── EDIT ─────────────────────────────────────────
+function showEdit() {
+  document.getElementById('screen-main').classList.add('hidden');
+  document.getElementById('screen-onboard').classList.remove('hidden');
+  document.getElementById('input-name').value = userData.name;
+  document.getElementById('input-dob').value = userData.dob;
+  if (ticker) clearInterval(ticker);
+}
+
+init();
+</script>
+</body>
+</html>
