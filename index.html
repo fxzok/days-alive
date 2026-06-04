@@ -38,7 +38,7 @@
     .onboard-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 2.5rem 2rem; width: 100%; max-width: 400px; box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px var(--glow); position: relative; overflow: hidden; }
     .onboard-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
     .onboard-logo { font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.25em; color: var(--accent); text-transform: uppercase; margin-bottom: 1.8rem; opacity: 0.8; }
-    .onboard-title { font-size: 2rem; font-weight: 300; line-height: 1.2; margin-bottom: 0.5rem; color: var(--text); }
+    .onboard-title { font-size: 1.6rem; font-weight: 300; line-height: 1.3; margin-bottom: 0.8rem; color: var(--text); }
     .onboard-title em { font-style: italic; color: var(--accent); }
     .onboard-sub { font-size: 0.95rem; color: var(--muted); margin-bottom: 2rem; font-weight: 300; }
     .lang-toggle { display: flex; gap: 0.5rem; margin-bottom: 1.8rem; }
@@ -104,7 +104,7 @@
 <div class="screen" id="screen-onboard">
   <div class="onboard-card">
     <div class="onboard-logo">Days Alive ✦</div>
-    <h1 class="onboard-title" id="ob-title">Combien de jours<br><em>avez-vous vécu ?</em></h1>
+    <h1 class="onboard-title" id="ob-title">Enseigne-nous à bien<br><em>compter nos jours</em>, afin que<br>nous appliquions notre<br>cœur à la <em>sagesse</em>.</h1>
     <p class="onboard-sub" id="ob-sub">Entrez votre prénom et votre date de naissance.</p>
     <div class="lang-toggle">
       <button class="lang-btn active" onclick="setLang('fr',true)" id="btn-fr">🇫🇷 Français</button>
@@ -489,7 +489,7 @@ const VERSES = [
 // ─── I18N ─────────────────────────────────────────
 const T = {
   fr: {
-    ob_title: 'Combien de jours<br><em>avez-vous vécu ?</em>',
+    ob_title: 'Enseigne-nous à bien<br><em>compter nos jours</em>, afin que<br>nous appliquions notre<br>cœur à la <em>sagesse</em>.<br><span style="font-size:0.85rem;opacity:0.5;font-family:\'Space Mono\',monospace;letter-spacing:0.1em;display:block;margin-top:0.5rem;">PSAUME 90:12</span>',
     ob_sub: 'Entrez votre prénom et votre date de naissance.',
     ob_label_name: 'Prénom',
     ob_label_dob: 'Date de naissance',
@@ -501,7 +501,7 @@ const T = {
     live: 'EN DIRECT', edit: 'Modifier', lang_switch: 'EN',
   },
   en: {
-    ob_title: 'How many days<br><em>have you lived?</em>',
+    ob_title: 'So teach us to<br><em>number our days</em>,<br>that we may apply<br>our hearts unto <em>wisdom</em>.<br><span style="font-size:0.85rem;opacity:0.5;font-family:\'Space Mono\',monospace;letter-spacing:0.1em;display:block;margin-top:0.5rem;">PSALM 90:12</span>',
     ob_sub: 'Enter your first name and date of birth.',
     ob_label_name: 'First name',
     ob_label_dob: 'Date of birth',
