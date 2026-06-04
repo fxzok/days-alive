@@ -1,0 +1,15 @@
+{
+  "name": "Days Alive",
+  "short_name": "Days Alive",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%230a0a0f'/><path d='M50 22v56M28 42h44' stroke='%23c8a96e' stroke-width='8' stroke-linecap='round'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
