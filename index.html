@@ -1691,6 +1691,10 @@ function getDailyVerse(name) {
 
 // ─── INITIALISATION ET ENREGISTREMENT DU SERVICE WORKER DE SÉCURITÉ PWA ───
 function init() {
+// NETTOYAGE DU PETIT "1" ROUGE AU DÉMARRAGE
+  if ('clearAppBadge' in navigator) {
+    navigator.clearAppBadge().catch(() => {});
+  }
   const saved = localStorage.getItem('daysalive_user');
   const savedLang = localStorage.getItem('daysalive_lang');
   if (savedLang) lang = savedLang;
