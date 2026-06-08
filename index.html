@@ -9,13 +9,10 @@
   <meta name="theme-color" content="#0a0a0f" />
   <title>Days Alive</title>
 
-  <!-- LIAISON AVEC LE MANIFESTE POUR RETIRER LE LOGO CHROME -->
   <link rel="manifest" href="manifest.json" />
 
-  <!-- COMPTEUR DE VISITES INVISIBLE GOATCOUNTER -->
   <script data-goatcounter="https://daysalive-fx.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 
-  <!-- ICÔNES PERSONNALISÉES POUR L'ÉCRAN D'ACCUEIL (ANDROID & IOS) -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%230a0a0f'/><path d='M50 22v56M28 42h44' stroke='%23c8a96e' stroke-width='8' stroke-linecap='round'/></svg>" />
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%230a0a0f'/><path d='M50 22v56M28 42h44' stroke='%23c8a96e' stroke-width='8' stroke-linecap='round'/></svg>" />
 
@@ -55,6 +52,17 @@
     .field input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; color: var(--text); font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 300; outline: none; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none; }
     .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,169,110,0.1); }
     .field input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+    
+    /* STYLE INTERRUPTEUR NOTIFICATIONS DORÉ */
+    .notify-box { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 0.6rem 0.8rem; margin-bottom: 1rem; }
+    .notify-text { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+    .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; inset: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 20px; border: 1px solid var(--border); }
+    .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: var(--muted); transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--accent); border-color: var(--accent); }
+    input:checked + .slider:before { transform: translateX(16px); background-color: var(--bg); }
+
     .btn-primary { width: 100%; padding: 0.9rem; border-radius: 14px; border: none; background: linear-gradient(135deg, var(--accent), #d4b87a); color: #0a0a0f; font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; margin-top: 0.4rem; transition: transform 0.15s, box-shadow 0.2s; box-shadow: 0 4px 20px rgba(200,169,110,0.3); }
     .btn-primary:active { transform: scale(0.98); }
     .btn-primary:hover { box-shadow: 0 6px 30px rgba(200,169,110,0.45); }
@@ -65,7 +73,7 @@
     .greeting { text-align: center; }
     .greeting-label { font-family: 'Space Mono', monospace; font-size: 0.6rem; letter-spacing: 0.25em; color: var(--accent); text-transform: uppercase; opacity: 0.8; margin-bottom: 0.4rem; }
     .greeting-name { font-size: 2.2rem; font-weight: 300; letter-spacing: 0.02em; }
-    .greeting-name em { font-style: italic; color: var(--accent); }
+    .greeting-name em { font-style: italic; color: var(--accent); font-weight: 400; }
     .counter-card { background: var(--surface); border: 1px solid var(--border); border-radius: 28px; padding: 2rem 2rem; width: 100%; text-align: center; position: relative; overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,0.5), 0 0 80px var(--glow); }
     .counter-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent); }
     .counter-card::after { content: ''; position: absolute; bottom: -40px; right: -40px; width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, rgba(126,184,200,0.06) 0%, transparent 70%); pointer-events: none; }
@@ -106,7 +114,6 @@
 </head>
 <body>
 
-<!-- ONBOARDING -->
 <div class="screen" id="screen-onboard">
   <div class="onboard-card">
     <div class="onboard-logo">Days Alive ✦</div>
@@ -124,11 +131,19 @@
       <label id="ob-label-dob">Date de naissance</label>
       <input type="date" id="input-dob" />
     </div>
+
+    <div class="notify-box">
+      <span class="notify-text" id="notify-lbl">Rappel chaque matin à 6h GMT</span>
+      <label class="switch">
+        <input type="checkbox" id="notify-toggle" onchange="toggleNotifications()">
+        <span class="slider"></span>
+      </label>
+    </div>
+
     <button class="btn-primary" id="btn-start" onclick="handleStart()">DÉCOUVRIR →</button>
   </div>
 </div>
 
-<!-- MAIN -->
 <div class="screen hidden" id="screen-main">
   <div class="main-inner">
     <div class="greeting anim anim-1">
@@ -160,7 +175,7 @@
 </div>
 
 <script>
-// ─── 365 VERSETS UNIFIÉS (FR: Louis Segond / EN: King James Version) ────────────────────
+// ─── TON REPERTOIRE COMPLET DE VERSETS DE BASE BIEN INTÉGRÉ ICI ────────────────────
 const VERSES = [
   {
     fr: "Car je connais les projets que j'ai formés sur vous, dit l'Éternel, projets de paix et non de malheur, afin de vous donner un avenir et de l'espérance.", rfr: "Jérémie 29:11",
@@ -492,7 +507,7 @@ const VERSES = [
   }
 ];
 
-// ─── I18N ─────────────────────────────────────────
+// ─── TRADUCTIONS ET SÉCURITÉ DE TRADUCTION DE L'INTERFACE ─────────────────
 const T = {
   fr: {
     ob_title: 'Enseigne-nous à bien <em>compter nos jours</em>, afin que nous appliquions notre cœur à la <em>sagesse</em>.<br><span style="font-size:0.8rem;opacity:0.5;font-family:\'Space Mono\',monospace;letter-spacing:0.1em;display:block;margin-top:0.4rem;">PSAUME 90:12</span>',
@@ -505,6 +520,7 @@ const T = {
     days_label: 'sur Terre',
     years: 'années', weeks: 'semaines', hours: 'heures',
     live: 'EN DIRECT', edit: 'Modifier', lang_switch: 'EN',
+    notify_lbl: 'Rappel chaque matin à 6h GMT'
   },
   en: {
     ob_title: 'So teach us to <em>number our days</em>, that we may apply our hearts unto <em>wisdom</em>.<br><span style="font-size:0.8rem;opacity:0.5;font-family:\'Space Mono\',monospace;letter-spacing:0.1em;display:block;margin-top:0.4rem;">PSALM 90:12</span>',
@@ -517,18 +533,20 @@ const T = {
     days_label: 'On Earth',
     years: 'years', weeks: 'weeks', hours: 'hours',
     live: 'LIVE', edit: 'Edit', lang_switch: 'FR',
+    notify_lbl: 'Reminder every morning at 6am GMT'
   }
 };
 
-// ─── STATE ────────────────────────────────────────
+// ─── ÉTAT DE L'APPLICATION ────────────────────────────────────────
 let lang = 'fr';
-let userData = { name: '', dob: '' };
+let userData = { name: '', dob: '', notifications: false };
 let ticker;
+let scheduleTimeout;
 
-// ─── VERSE SELECTOR ──────────────────────────────
+// ─── ALGORITHME DE CALCUL DE SÉLECTION DU VERSET BASÉ SUR GMT ─────────────
 function getDailyVerse(name) {
   const today = new Date();
-  const dateStr = today.getFullYear() + '' + (today.getMonth()+1) + '' + today.getDate();
+  const dateStr = today.getUTCFullYear() + '' + (today.getUTCMonth()+1) + '' + today.getUTCDate();
   let hash = 0;
   const seed = name.toLowerCase() + dateStr;
   for (let i = 0; i < seed.length; i++) {
@@ -539,16 +557,27 @@ function getDailyVerse(name) {
   return VERSES[idx];
 }
 
-// ─── INIT ─────────────────────────────────────────
+// ─── INITIALISATION ET ENREGISTREMENT DU SERVICE WORKER DE SÉCURITÉ PWA ───
 function init() {
   const saved = localStorage.getItem('daysalive_user');
   const savedLang = localStorage.getItem('daysalive_lang');
   if (savedLang) lang = savedLang;
   applyLangToOnboard();
-  if (saved) { userData = JSON.parse(saved); showMain(); }
+  
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  
+  if (saved) { 
+    userData = JSON.parse(saved);
+    const toggle = document.getElementById('notify-toggle');
+    if (toggle) toggle.checked = userData.notifications || false;
+    showMain(); 
+    checkAndTrigger6AMNotification();
+  }
 }
 
-// ─── LANG ─────────────────────────────────────────
+// ─── COMMUTATEUR DYNAMIQUE DE LANGUES ──────────────────────────────────────
 function setLang(l, fromOnboard) {
   lang = l;
   localStorage.setItem('daysalive_lang', l);
@@ -565,6 +594,7 @@ function applyLangToOnboard() {
   document.getElementById('ob-label-dob').textContent = t.ob_label_dob;
   document.getElementById('input-name').placeholder = t.ob_placeholder_name;
   document.getElementById('btn-start').textContent = t.ob_btn;
+  document.getElementById('notify-lbl').textContent = t.notify_lbl;
   document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
   document.getElementById('btn-en').classList.toggle('active', lang === 'en');
   document.documentElement.lang = lang;
@@ -579,14 +609,102 @@ function applyLangToMain() {
   document.getElementById('stat-years-lbl').textContent = t.years;
   document.getElementById('stat-weeks-lbl').textContent = t.weeks;
   document.getElementById('stat-hours-lbl').textContent = t.hours;
-  document.getElementById('live-label').textContent = t.live;
   document.getElementById('btn-edit-label').textContent = t.edit;
   document.getElementById('main-lang-switch').textContent = t.lang_switch;
   updateStats();
   updateVerse();
 }
 
-// ─── ONBOARDING ───────────────────────────────────
+// ─── ENGINE LOGIQUE DE PLANIFICATION AUTOMATIQUE À 6H00 GMT ─────────────────
+function toggleNotifications() {
+  const isChecked = document.getElementById('notify-toggle').checked;
+  if (isChecked) {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        userData.notifications = true;
+        saveUserData();
+        planNext6AMNotification();
+      } else {
+        document.getElementById('notify-toggle').checked = false;
+        userData.notifications = false;
+        saveUserData();
+      }
+    });
+  } else {
+    userData.notifications = false;
+    saveUserData();
+    if (scheduleTimeout) clearTimeout(scheduleTimeout);
+  }
+}
+
+function saveUserData() {
+  localStorage.setItem('daysalive_user', JSON.stringify(userData));
+}
+
+function planNext6AMNotification() {
+  if (!userData.notifications || Notification.permission !== 'granted') return;
+  if (scheduleTimeout) clearTimeout(scheduleTimeout);
+
+  const now = new Date();
+  let next6AM = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 6, 0, 0, 0));
+  
+  if (now >= next6AM) next6AM.setUTCDate(next6AM.getUTCDate() + 1);
+
+  const msToWait = next6AM - now;
+  scheduleTimeout = setTimeout(() => {
+    sendDailyNotification();
+    planNext6AMNotification();
+  }, msToWait);
+}
+
+function checkAndTrigger6AMNotification() {
+  if (!userData.notifications || Notification.permission !== 'granted') return;
+
+  const now = new Date();
+  const todayStr = now.getUTCFullYear() + '-' + (now.getUTCMonth()+1) + '-' + now.getUTCDate();
+  const lastTriggered = localStorage.getItem('daysalive_last_notify');
+
+  if (now.getUTCHours() >= 6 && lastTriggered !== todayStr) {
+    sendDailyNotification();
+  }
+  planNext6AMNotification();
+}
+
+// ALERTE VERTICALE ULTRA-PERSONNALISÉE COMME CONFIGURÉE ET DEMANDÉE
+function sendDailyNotification() {
+  const v = getDailyVerse(userData.name);
+  const dob = new Date(userData.dob);
+  const now = new Date();
+  const diffMs = now - dob;
+  const days = Math.floor(diffMs / 86400000);
+  
+  const capitalizedName = userData.name.charAt(0).toUpperCase() + userData.name.slice(1);
+  
+  // Le Titre principal devient l'affirmation divine
+  const title = lang === 'fr' ? "Cette journée est bénie ✨" : "This day is blessed ✨";
+
+  // Agencement vertical précis (\n effectue un saut de ligne sur l'écran du mobile)
+  const body = lang === 'fr' 
+    ? `${capitalizedName}\nJour ${days.toLocaleString()} sur Terre\n\n"${v.fr}" — ${v.rfr}`
+    : `${capitalizedName}\nDay ${days.toLocaleString()} on Earth\n\n"${v.en}" — ${v.ren}`;
+
+  const options = {
+    body: body,
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="%230a0a0f"/><path d="M50 22v56M28 42h44" stroke="%23c8a96e" stroke-width="8" stroke-linecap="round"/></svg>'
+  };
+
+  // Traitement sécurisé pour Android et iOS
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.ready.then(reg => reg.showNotification(title, options));
+  } else {
+    new Notification(title, options);
+  }
+
+  const todayStr = now.getUTCFullYear() + '-' + (now.getUTCMonth()+1) + '-' + now.getUTCDate();
+  localStorage.setItem('daysalive_last_notify', todayStr);
+}
+
+// ─── ACTIVATION DE L'ONBOARDING ET DE SA VEILLE ─────────────────────────
 function handleStart() {
   const name = document.getElementById('input-name').value.trim();
   const dob = document.getElementById('input-dob').value;
@@ -597,12 +715,13 @@ function handleStart() {
     setTimeout(() => { input.style.borderColor = ''; input.style.boxShadow = ''; }, 2000);
     return;
   }
-  userData = { name, dob };
-  localStorage.setItem('daysalive_user', JSON.stringify(userData));
+  userData = { name, dob, notifications: document.getElementById('notify-toggle').checked };
+  saveUserData();
   showMain();
+  checkAndTrigger6AMNotification();
 }
 
-// ─── SHOW MAIN ────────────────────────────────────
+// ─── AFFICHAGE ET RÉINITIALISATION DES ANIMATIONS ─────────────────────────
 function showMain() {
   document.getElementById('screen-onboard').classList.add('hidden');
   const main = document.getElementById('screen-main');
@@ -617,7 +736,7 @@ function showMain() {
   ticker = setInterval(updateStats, 1000);
 }
 
-// ─── STATS ────────────────────────────────────────
+// ─── RAFFRAICHISSEMENT DES CHIFFRES TEMPORELS (SANS DÉCIMALES) ─────────────
 function updateStats() {
   const dob = new Date(userData.dob);
   const now = new Date();
@@ -632,7 +751,6 @@ function updateStats() {
   document.getElementById('stat-hours').textContent = hours.toLocaleString();
 }
 
-// ─── VERSE ────────────────────────────────────────
 function updateVerse() {
   const v = getDailyVerse(userData.name);
   if (lang === 'fr') {
@@ -644,12 +762,13 @@ function updateVerse() {
   }
 }
 
-// ─── EDIT ─────────────────────────────────────────
+// ─── ACCÈS AU CONTEXTE INTERNE VIA L'ÉCRAN RE-ÉDITION ─────────────────────
 function showEdit() {
   document.getElementById('screen-main').classList.add('hidden');
   document.getElementById('screen-onboard').classList.remove('hidden');
   document.getElementById('input-name').value = userData.name;
   document.getElementById('input-dob').value = userData.dob;
+  document.getElementById('notify-toggle').checked = userData.notifications || false;
   if (ticker) clearInterval(ticker);
 }
 
