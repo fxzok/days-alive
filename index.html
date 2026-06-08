@@ -1711,6 +1711,16 @@ function init() {
     showMain(); 
     checkAndTrigger6AMNotification();
   }
+// VIDE LE TIROIR DES NOTIFICATIONS POUR EFFACER LE POINT ROUGE SUR ANDROID
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(reg => {
+      if (reg.getNotifications) {
+        reg.getNotifications().then(notifs => {
+          notifs.forEach(n => n.close());
+        });
+      }
+    });
+  }
 }
 
 // ─── COMMUTATEUR DYNAMIQUE DE LANGUES ──────────────────────────────────────
