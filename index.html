@@ -1927,101 +1927,111 @@ function showEdit() {
 }
 
 init();
-// FONCTION DE CAPTURE PHOTO ÉPURÉE SÉCURISÉE + TEXTE SAGESSE PERSONALISÉ
+// FONCTION DE CAPTURE PHOTO EN COPIE CONFORME SÉCURISÉE
 function handleShare() {
-  const bottomBar = document.querySelector('.bottom-bar');
-  
-  // 1. On masque la barre du bas pour obtenir le poster épuré
-  if (bottomBar) bottomBar.style.opacity = '0';
+  const realDaysCount = document.getElementById('days-count');
+  const exactFontSize = window.getComputedStyle(realDaysCount).fontSize;
+  const realWidth = window.innerWidth;
+  const realHeight = window.innerHeight;
 
-  const target = document.querySelector('.main-inner');
+  // On capture l'élément conteneur complet pour préserver la silhouette et les halos de fond
+  const target = document.getElementById('screen-main');
 
-  setTimeout(() => {
-    html2canvas(target, {
-      backgroundColor: '#0a0a0f', // Conserve ton fond dégradé sombre
-      scale: 2, // Sortie Haute Définition
-      useCORS: true,
-      onclone: (clonedDoc) => {
-        // SÉCURITÉ CSS ANTI-ÉCRAN NOIR : On force la visibilité de tous les éléments animés
-        clonedDoc.querySelectorAll('.anim').forEach(el => {
-          el.style.animation = 'none';
-          el.style.opacity = '1';
-          el.style.transform = 'none';
-        });
-
-        // Application forcée des couleurs textuelles pour le rendu final
-        const mainName = clonedDoc.getElementById('main-name');
-        const daysCount = clonedDoc.getElementById('days-count');
-        const mainLabel = clonedDoc.getElementById('main-label');
-        const daysLabel = clonedDoc.getElementById('days-label');
-        const verseText = clonedDoc.getElementById('verse-text');
-        const verseRef = clonedDoc.getElementById('verse-ref');
-
-        if (mainLabel) mainLabel.style.color = '#c8a96e';
-        if (daysCount) daysCount.style.color = '#f0ede8';
-        if (daysLabel) daysLabel.style.color = 'rgba(240,237,232,0.45)';
-        if (verseText) verseText.style.color = '#f0ede8';
-        if (verseRef) verseRef.style.color = '#c8a96e';
-        if (mainName) {
-          mainName.style.color = '#f0ede8';
-          const em = mainName.querySelector('em');
-          if (em) em.style.color = '#c8a96e';
-        }
-
-        clonedDoc.querySelectorAll('.counter-card').forEach(el => {
-          el.style.backgroundColor = '#12121a';
-          el.style.borderColor = 'rgba(255,255,255,0.08)';
-        });
-        clonedDoc.querySelectorAll('.verse-card').forEach(el => {
-          el.style.backgroundColor = 'rgba(200,169,110,0.05)';
-          el.style.borderColor = 'rgba(200,169,110,0.18)';
-        });
-        clonedDoc.querySelectorAll('.stat-pill').forEach(el => {
-          el.style.backgroundColor = 'rgba(255,255,255,0.04)';
-          el.style.borderColor = 'rgba(255,255,255,0.08)';
-        });
-        clonedDoc.querySelectorAll('.stat-val').forEach(el => el.style.color = '#7eb8c8');
-        clonedDoc.querySelectorAll('.stat-lbl').forEach(el => el.style.color = 'rgba(240,237,232,0.45)');
+  html2canvas(target, {
+    width: realWidth,
+    height: realHeight,
+    windowWidth: realWidth,
+    windowHeight: realHeight,
+    backgroundColor: '#0a0a0f', 
+    scale: 2, // Haute Définition
+    useCORS: true,
+    onclone: (clonedDoc) => {
+      // Masquage absolu et temporaire de la barre inférieure sur la photo
+      const clonedBottomBar = clonedDoc.querySelector('.bottom-bar');
+      if (clonedBottomBar) {
+        clonedBottomBar.style.setProperty('display', 'none', 'important');
       }
-    }).then(canvas => {
-      
-      // 2. Le cliché est pris, on remet immédiatement les boutons à l'écran
-      if (bottomBar) bottomBar.style.opacity = '1';
 
-      // 3. Création de l'image et gestion multilingue automatique du texte
-      canvas.toBlob(blob => {
-        if (!blob) return;
-        const file = new File([blob], 'daysalive-poster.png', { type: 'image/png' });
-        const name = userData.name.charAt(0).toUpperCase() + userData.name.slice(1);
-        const days = document.getElementById('days-count').textContent;
+      // On fige toutes les animations (y compris le compteur .days-number) pour rendre tout visible
+      clonedDoc.querySelectorAll('.anim, .days-number').forEach(el => {
+        el.style.animation = 'none';
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      });
 
-        // TEXTE INTERNATIONALE ADAPTÉ À LA LANGUE CHOISIE AVEC PSAUME 90:12
-        const shareText = lang === 'fr' 
-          ? `✨ *Days Alive* ✨\n\n${name} fête aujourd'hui ses ${days} jours sur Terre. 🎉\nIl compte ses jours afin d'appliquer son cœur à la sagesse (Psaume 90:12). 🙏\n\nTu peux le faire toi également en cliquant sur ce lien :`
-          : `✨ *Days Alive* ✨\n\n${name} is celebrating ${days} days on Earth today. 🎉\nLearning to number their days to apply their heart unto wisdom (Psalm 90:12). 🙏\n\nCalculate your days too by clicking this link:`;
+      // On applique au chiffre clonant la taille exacte calculée par l'écran du mobile
+      const clonedDaysCount = clonedDoc.getElementById('days-count');
+      if (clonedDaysCount) {
+        clonedDaysCount.style.fontSize = exactFontSize;
+        clonedDaysCount.style.color = '#f0ede8';
+      }
 
-        // 4. Distribution de la photo et du texte sur le smartphone
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          navigator.share({
-            files: [file],
-            title: 'Days Alive',
-            text: shareText + " " + window.location.href
-          }).catch(() => {});
-        } else if (navigator.share) {
-          navigator.share({
-            title: 'Days Alive',
-            text: shareText,
-            url: window.location.href
-          }).catch(() => {});
-        } else {
-          const encodedText = encodeURIComponent(shareText + " " + window.location.href);
-          window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
-        }
-      }, 'image/png');
-    }).catch(() => {
-      if (bottomBar) bottomBar.style.opacity = '1';
-    });
-  }, 150);
+      // Consolidation générale des couleurs pour la capture
+      const mainName = clonedDoc.getElementById('main-name');
+      const mainLabel = clonedDoc.getElementById('main-label');
+      const daysLabel = clonedDoc.getElementById('days-label');
+      const verseText = clonedDoc.getElementById('verse-text');
+      const verseRef = clonedDoc.getElementById('verse-ref');
+
+      if (mainLabel) mainLabel.style.color = '#c8a96e';
+      if (daysLabel) daysLabel.style.color = 'rgba(240,237,232,0.45)';
+      if (verseText) verseText.style.color = '#f0ede8';
+      if (verseRef) verseRef.style.color = '#c8a96e';
+      if (mainName) {
+        mainName.style.color = '#f0ede8';
+        const em = mainName.querySelector('em');
+        if (em) em.style.color = '#c8a96e';
+      }
+
+      const clonedScreen = clonedDoc.getElementById('screen-main');
+      if (clonedScreen) {
+        clonedScreen.style.background = "#0a0a0f radial-gradient(ellipse 80% 50% at 20% 20%, rgba(200,169,110,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 80% 80%, rgba(126,184,200,0.05) 0%, transparent 60%)";
+      }
+
+      clonedDoc.querySelectorAll('.counter-card').forEach(el => {
+        el.style.backgroundColor = '#12121a';
+        el.style.borderColor = 'rgba(255,255,255,0.08)';
+      });
+      clonedDoc.querySelectorAll('.verse-card').forEach(el => {
+        el.style.backgroundColor = 'rgba(200,169,110,0.05)';
+        el.style.borderColor = 'rgba(200,169,110,0.18)';
+      });
+      clonedDoc.querySelectorAll('.stat-pill').forEach(el => {
+        el.style.backgroundColor = 'rgba(255,255,255,0.04)';
+        el.style.borderColor = 'rgba(255,255,255,0.08)';
+      });
+      clonedDoc.querySelectorAll('.stat-val').forEach(el => el.style.color = '#7eb8c8');
+      clonedDoc.querySelectorAll('.stat-lbl').forEach(el => el.style.color = 'rgba(240,237,232,0.45)');
+    }
+  }).then(canvas => {
+    canvas.toBlob(blob => {
+      if (!blob) return;
+      const file = new File([blob], 'daysalive-poster.png', { type: 'image/png' });
+      const name = userData.name.charAt(0).toUpperCase() + userData.name.slice(1);
+      const days = document.getElementById('days-count').textContent;
+
+      const shareText = lang === 'fr' 
+        ? `✨ *Days Alive* ✨\n\n${name} fête aujourd'hui ses ${days} jours sur Terre. 🎉\nIl compte ses jours afin d'appliquer son cœur à la sagesse (Psaume 90:12). 🙏\n\nTu peux le faire toi également en cliquant sur ce lien :`
+        : `✨ *Days Alive* ✨\n\n${name} is celebrating ${days} days on Earth today. 🎉\nLearning to number their days to apply their heart unto wisdom (Psalm 90:12). 🙏\n\nCalculate your days too by clicking this link:`;
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({
+          files: [file],
+          title: 'Days Alive',
+          text: shareText + " " + window.location.href
+        }).catch(() => {});
+      } else if (navigator.share) {
+        navigator.share({
+          title: 'Days Alive',
+          text: shareText,
+          url: window.location.href
+        }).catch(() => {});
+      } else {
+        const encodedText = encodeURIComponent(shareText + " " + window.location.href);
+        window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
+      }
+    }, 'image/png');
+  }).catch(() => {});
 }
 </script>
 </body>
