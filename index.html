@@ -166,10 +166,16 @@
     <div class="bottom-bar anim anim-4">
       <button class="lang-switch" id="main-lang-switch" onclick="toggleLang()">EN</button>
       <div class="live-dot"><span class="dot"></span><span id="live-label">EN DIRECT</span></div>
-      <button class="btn-edit" onclick="showEdit()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        <span id="btn-edit-label">Modifier</span>
-      </button>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn-edit" onclick="handleShare()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+          <span>Partager</span>
+        </button>
+        <button class="btn-edit" onclick="showEdit()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <span id="btn-edit-label">Modifier</span>
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -1919,6 +1925,28 @@ function showEdit() {
 }
 
 init();
+// FONCTION DE PARTAGE INTELLIGENTE
+function handleShare() {
+  const days = document.getElementById('days-count').textContent;
+  const verse = document.getElementById('verse-text').textContent;
+  const ref = document.getElementById('verse-ref').textContent;
+  const name = userData.name.charAt(0).toUpperCase() + userData.name.slice(1);
+
+  const shareText = lang === 'fr' 
+    ? `✨ *Days Alive* ✨\n\n${name} célèbre aujourd'hui son *${days}ème jour* sur Terre ! 🎉\n\n📖 _La promesse du jour :_\n"${verse}" ${ref}\n\nCalcule tes jours toi aussi ici :`
+    : `✨ *Days Alive* ✨\n\n${name} is celebrating *${days} days* on Earth today! 🎉\n\n📖 _Today's promise:_\n"${verse}" ${ref}\n\nCalculate your days too here:`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: 'Days Alive',
+      text: shareText,
+      url: window.location.href
+    }).catch(() => {});
+  } else {
+    const encodedText = encodeURIComponent(shareText + " " + window.location.href);
+    window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
+  }
+}
 </script>
 </body>
 </html>
