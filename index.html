@@ -111,6 +111,7 @@
     .anim-5 { animation-delay: 0.65s; }
     @keyframes countUp { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
   </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -167,11 +168,11 @@
       <button class="lang-switch" id="main-lang-switch" onclick="toggleLang()">EN</button>
       
       <div style="display: flex; gap: 0.5rem;">
-        <button class="btn-edit" onclick="handleShare()">
+        <button class="btn-edit" onclick="handleShare()" style="width: 120px; justify-content: center;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
-          <span>Partager</span>
+          <span id="btn-share-label">Partager</span>
         </button>
-        <button class="btn-edit" onclick="showEdit()">
+        <button class="btn-edit" onclick="showEdit()" style="width: 120px; justify-content: center;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           <span id="btn-edit-label">Modifier</span>
         </button>
@@ -1657,7 +1658,7 @@ const T = {
     main_label: 'Cette journée est bénie',
     days_label: 'sur Terre',
     years: 'années', weeks: 'semaines', hours: 'heures',
-    live: 'EN DIRECT', edit: 'Modifier', lang_switch: 'EN',
+    edit: 'Modifier', share: 'Partager', lang_switch: 'EN',
     notify_lbl: 'Rappel chaque matin à 6h GMT'
   },
   en: {
@@ -1670,11 +1671,10 @@ const T = {
     main_label: 'This day is blessed',
     days_label: 'On Earth',
     years: 'years', weeks: 'weeks', hours: 'hours',
-    live: 'LIVE', edit: 'Edit', lang_switch: 'FR',
+    edit: 'Edit', share: 'Share', lang_switch: 'FR',
     notify_lbl: 'Reminder every morning at 6am GMT'
   }
 };
-
 // ─── ÉTAT DE L'APPLICATION ────────────────────────────────────────
 let lang = 'fr';
 let userData = { name: '', dob: '', notifications: false };
@@ -1762,6 +1762,7 @@ function applyLangToMain() {
   document.getElementById('stat-weeks-lbl').textContent = t.weeks;
   document.getElementById('stat-hours-lbl').textContent = t.hours;
   document.getElementById('btn-edit-label').textContent = t.edit;
+  document.getElementById('btn-share-label').textContent = t.share;
   document.getElementById('main-lang-switch').textContent = t.lang_switch;
   updateStats();
   updateVerse();
@@ -1925,27 +1926,60 @@ function showEdit() {
 }
 
 init();
-// FONCTION DE PARTAGE INTELLIGENTE
+// FONCTION DE CAPTURE PHOTO ÉPURÉE DE L'ÉCRAN + LIEN
 function handleShare() {
-  const days = document.getElementById('days-count').textContent;
-  const verse = document.getElementById('verse-text').textContent;
-  const ref = document.getElementById('verse-ref').textContent;
-  const name = userData.name.charAt(0).toUpperCase() + userData.name.slice(1);
+  const bottomBar = document.querySelector('.bottom-bar');
+  
+  // 1. On cache la barre du bas pour un poster épuré
+  if (bottomBar) bottomBar.style.opacity = '0';
 
-  const shareText = lang === 'fr' 
-    ? `✨ *Days Alive* ✨\n\n${name} célèbre aujourd'hui son *${days}ème jour* sur Terre ! 🎉\n\n📖 _La promesse du jour :_\n"${verse}" ${ref}\n\nCalcule tes jours toi aussi ici :`
-    : `✨ *Days Alive* ✨\n\n${name} is celebrating *${days} days* on Earth today! 🎉\n\n📖 _Today's promise:_\n"${verse}" ${ref}\n\nCalculate your days too here:`;
+  // On cible uniquement le rectangle central de l'application
+  const target = document.querySelector('.main-inner');
 
-  if (navigator.share) {
-    navigator.share({
-      title: 'Days Alive',
-      text: shareText,
-      url: window.location.href
-    }).catch(() => {});
-  } else {
-    const encodedText = encodeURIComponent(shareText + " " + window.location.href);
-    window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
-  }
+  // Petit temps d'attente pour laisser l'opacité se cacher proprement
+  setTimeout(() => {
+    html2canvas(target, {
+      backgroundColor: '#0a0a0f', // Garde ton joli fond sombre
+      scale: 2, // Photo en Haute Définition
+      useCORS: true
+    }).then(canvas => {
+      
+      // 2. La photo est prise, on réaffiche instantanément les boutons
+      if (bottomBar) bottomBar.style.opacity = '1';
+
+      // 3. Emballage de la photo et préparation du lien texte
+      canvas.toBlob(blob => {
+        if (!blob) return;
+        const file = new File([blob], 'daysalive-poster.png', { type: 'image/png' });
+        const name = userData.name.charAt(0).toUpperCase() + userData.name.slice(1);
+        const days = document.getElementById('days-count').textContent;
+
+        const shareText = lang === 'fr' 
+          ? `✨ *Days Alive* ✨\n\n${name} célèbre aujourd'hui son *${days}ème jour* sur Terre ! 🎉\n\nCalcule tes jours toi aussi ici :`
+          : `✨ *Days Alive* ✨\n\n${name} is celebrating *${days} days* on Earth today! 🎉\n\nCalculate your days too here:`;
+
+        // 4. Envoi simultané de la PHOTO + du TEXTE + du LIEN au téléphone
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({
+            files: [file],
+            title: 'Days Alive',
+            text: shareText + " " + window.location.href
+          }).catch(() => {});
+        } else if (navigator.share) {
+          navigator.share({
+            title: 'Days Alive',
+            text: shareText,
+            url: window.location.href
+          }).catch(() => {});
+        } else {
+          const encodedText = encodeURIComponent(shareText + " " + window.location.href);
+          window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
+        }
+      }, 'image/png');
+    }).catch(() => {
+      if (bottomBar) bottomBar.style.opacity = '1';
+    });
+  }, 100);
 }
 </script>
 </body>
