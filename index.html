@@ -2010,9 +2010,10 @@ function handleShare() {
       const name = userData.name.charAt(0).toUpperCase() + userData.name.slice(1);
       const days = document.getElementById('days-count').textContent;
 
-      const shareText = lang === 'fr' 
-        ? `✨ *Days Alive* ✨\n\n${name} fête aujourd'hui ses ${days} jours sur Terre. 🎉\nIl compte ses jours afin d'appliquer son cœur à la sagesse (Psaume 90:12). 🙏\n\nTu peux le faire toi également en cliquant sur ce lien :`
-        : `✨ *Days Alive* ✨\n\n${name} is celebrating ${days} days on Earth today. 🎉\nLearning to number their days to apply their heart unto wisdom (Psalm 90:12). 🙏\n\nCalculate your days too by clicking this link:`;
+      // TON TEXTE DE PARTAGE ENTIÈREMENT PERSONNALISÉ (FR / EN)
+        const shareText = lang === 'fr' 
+          ? `✨ *Days Alive* ✨\n\n${name} fête aujourd'hui ses ${days} jours sur Terre. 🎉\nUne invitation à bien compter ses jours pour appliquer son cœur à la sagesse (Psaume 90:12). 🙏\n\nTu peux le faire toi également en cliquant sur ce lien :`
+          : `✨ *Days Alive* ✨\n\n${name} is celebrating ${days} days on Earth today. 🎉\nLearning to number their days to apply their heart unto wisdom (Psalm 90:12). 🙏\n\nCalculate your days too by clicking this link:`;
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         navigator.share({
